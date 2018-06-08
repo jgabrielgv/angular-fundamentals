@@ -1,14 +1,2 @@
 .app {
 }
-.status {
-  background: #c0392b;
-  border-radius: 50%;
-  display: block;
-  float: left;
-  height: 10px;
-  margin: 8px 10px 0 0;
-  width: 10px;
-  &.checked-in {
-    background: #2ecc71;
-  }
-}
