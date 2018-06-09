@@ -1,80 +1,61 @@
 import { Component, OnInit } from "@angular/core";
 
-import { Passenger, Child } from "./../../models/passenger.interface";
+import { PassengerDashboardService } from "../../passenger-dashboard.service";
+// import { PassengerDashboardService } from "../../../playground/passenger-dashboard/passenger-dashboard.service";
+
+import { Passenger } from "./../../models/passenger.interface";
 
 @Component({
   selector: "passenger-dashboard",
   styleUrls: ["passenger-dashboard.component.scss"],
   template: `
     <div>
-      <passenger-count></passenger-count>
-      <passenger-detail></passenger-detail>
-      <h3>Airline Passengers</h3>
-      <ul>
-        <li *ngFor="let passenger of passengers; let i = index;">
-          <span class="status"
-          [class.checked-in]="passenger.checkedIn">
-          </span>
-          {{ i }}: {{ passenger.fullname }}
-          <p>{{ passenger | json }}</p>
-          <div class="date">
-            Check in date:
-            {{ passenger.checkInDate ?
-              (passenger.checkInDate | date: 'yMMMMd' | uppercase)
-              : 'Not checked in' }}
-          </div>
-          <div class="children">
-              Children: {{ passenger.children?.length || 0 }}
-          </div>
-        </li>
-      </ul>
+      <passenger-count
+        [items]="passengers">
+        </passenger-count>
+      <div *ngFor="let passenger of passengers">
+        {{ passenger.fullname }}
+      </div>
+      <passenger-detail
+        *ngFor="let passenger of passengers;"
+        [detail]="passenger"
+        (edit)="handleEdit($event)"
+        (remove)="handleRemove($event)">
+      </passenger-detail>
     </div>
   `
 })
 export class PassengerDashboardComponent implements OnInit {
   passengers: Passenger[];
 
-  constructor() {}
+  constructor(private passengerService: PassengerDashboardService) {}
 
   ngOnInit() {
-    console.log("NG on init");
-    this.passengers = [
-      {
-        id: 1,
-        fullname: "Stephen",
-        checkedIn: true,
-        checkInDate: 1490742000000,
-        children: null
-      },
-      {
-        id: 2,
-        fullname: "Rose",
-        checkedIn: false,
-        checkInDate: null,
-        children: [{ name: "Ted", age: 12 }, { name: "Chloe", age: 7 }]
-      },
-      {
-        id: 3,
-        fullname: "James",
-        checkedIn: true,
-        checkInDate: 1490742000000,
-        children: null
-      },
-      {
-        id: 4,
-        fullname: "Louise",
-        checkedIn: true,
-        checkInDate: 1490742000000,
-        children: [{ name: "Jessica", age: 1 }]
-      },
-      {
-        id: 5,
-        fullname: "Tina",
-        checkedIn: false,
-        checkInDate: null,
-        children: null
-      }
-    ];
+    this.passengerService
+    .getPassengers()
+    .subscribe((data: Passenger[]) => this.passengers = data, error => console.log(error));
+    // .then((data: Passenger[]) => this.passengers = data); // in case you want to use promises
+  }
+  handleEdit(event: Passenger) {
+    this.passengerService
+      .updatePassenger(event)
+      .subscribe((data: Passenger) => {
+        this.passengers = this.passengers.map((passenger: Passenger) => {
+          if(passenger.id === event.id) {
+            passenger = Object.assign({}, passenger, event);
+          }
+          return passenger;
+        });
+      });
+  }
+  handleRemove(event: Passenger) {
+    this.passengerService
+      .removePassenger(event)
+      .subscribe((data: Passenger) => {
+        this.passengers = this.passengers.filter((passenger: Passenger) => {
+          return passenger.id !== event.id;
+        });
+      });
   }
 }
 
