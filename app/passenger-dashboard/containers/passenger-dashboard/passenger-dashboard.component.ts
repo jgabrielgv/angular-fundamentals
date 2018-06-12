@@ -1,7 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 
 import { PassengerDashboardService } from "../../passenger-dashboard.service";
-// import { PassengerDashboardService } from "../../../playground/passenger-dashboard/passenger-dashboard.service";
+
+import { Router } from '@angular/router';
 
 import { Passenger } from "./../../models/passenger.interface";
 
@@ -19,6 +20,7 @@ import { Passenger } from "./../../models/passenger.interface";
       <passenger-detail
         *ngFor="let passenger of passengers;"
         [detail]="passenger"
+        (view)="handleView($event)"
         (edit)="handleEdit($event)"
         (remove)="handleRemove($event)">
       </passenger-detail>
@@ -28,7 +30,10 @@ import { Passenger } from "./../../models/passenger.interface";
 export class PassengerDashboardComponent implements OnInit {
   passengers: Passenger[];
 
-  constructor(private passengerService: PassengerDashboardService) {}
+  constructor(
+    private router: Router,
+    private passengerService: PassengerDashboardService
+  ) {}
 
   ngOnInit() {
     this.passengerService
@@ -57,68 +62,7 @@ export class PassengerDashboardComponent implements OnInit {
         });
       });
   }
-}
-
-/**
-   * name: string = '';
-  handleChange(value: string) {
-    this.name = value;
+  handleView(event: Passenger) {
+    this.router.navigate(['/passengers', event.id]);
   }
-   * <input
-        type="text"
-        [value]="name"
-        (input)="handleChange($event.target.value)">
-
-      <template [ngIf]="name.length > 2">
-        <div>
-          Searching for... {{ name }}
-        </div>
-      </template>
-
-      <div *ngIf="name.length > 2">
-        Searching for... {{ name }}
-      </div>
-
-      <h3>Airline Passengers</h3>
-      <ul>
-        <template ngFor let-passenger let-i="index" [ngForOf]="passengers">
-          <li>
-            {{ i }}: {{ passenger.fullname }}
-          </li>
-        </template>
-      </ul>
-
-      <h3>Airline Passengers</h3>
-      <ul>
-        <li *ngFor="let passenger of passengers; let i = index;">
-          <span class="status"
-          [ngClass]="{
-            'checked-in': passenger.checkedIn,
-            'checked-out': !passenger.checkedIn
-          }">
-          </span>
-          {{ i }}: {{ passenger.fullname }}
-        </li>
-      </ul>
-      <h3>Airline Passengers</h3>
-      <ul>
-        <li *ngFor="let passenger of passengers; let i = index;">
-          <span class="status"
-          [style.backgroundColor]="(passenger.checkedIn ? '#2ecc71': '#c0392b')">
-          </span>
-          {{ i }}: {{ passenger.fullname }}
-        </li>
-      </ul>
-      <h3>Airline Passengers</h3>
-      <ul>
-        <li *ngFor="let passenger of passengers; let i = index;">
-          <span class="status"
-          [ngStyle]="{
-            'backgroundColor': (passenger.checkedIn ? '#2ecc71': '#c0392b')
-          }">
-          </span>
-          {{ i }}: {{ passenger.fullname }}
-        </li>
-      </ul>
-   *
-  */
+}
